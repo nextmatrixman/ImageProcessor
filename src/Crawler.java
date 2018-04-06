@@ -1,3 +1,9 @@
+/*
+This crawler reads the URLs from the input file and downloads the images for processing,
+when an image is downloaded, the URL of the image is added to job queue to be grabbed by one
+of the processor threads to be worked on.
+*/
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -22,7 +28,7 @@ public class Crawler implements Runnable {
     }
   }
 
-  // reads url list file
+  // reads unique URLs from file and ignores duplicated URLs
   private static void readFile(String filePath) throws IOException {
     File file = new File(filePath);
     Scanner sc = new Scanner(file);
@@ -42,7 +48,7 @@ public class Crawler implements Runnable {
     sc.close();
   }
 
-  // downloads image files and adds their paths to the tasks queue to be processed
+  // downloads image files and adds their URls to job queue to be processed
   private static void download(List<String> urls) throws IOException {
     ReadableByteChannel rbc = null;
     FileOutputStream fos = null;
@@ -56,7 +62,12 @@ public class Crawler implements Runnable {
       Main.enqueue(url);
     }
 
-    rbc.close();
-    fos.close();
+    if (rbc != null) {
+      rbc.close();
+    }
+
+    if (fos != null) {
+      fos.close();
+    }
   }
 }
